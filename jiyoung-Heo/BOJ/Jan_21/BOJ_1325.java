@@ -7,10 +7,9 @@ import java.util.Queue;
 import java.util.StringTokenizer;
 
 public class Main {
-
 	static int n;
 	static boolean[] visited;
-	static boolean[][] arr;
+	static ArrayList<Integer>[] list;
 	static int[] count;
 	static int maxCount;
 
@@ -25,14 +24,17 @@ public class Main {
 		// m개의 줄 제시
 		int m = Integer.parseInt(st.nextToken());
 
-		arr = new boolean[n + 1][n + 1];
 		count = new int[n + 1];
+		list = new ArrayList[n + 1];
+		for (int i = 0; i < n + 1; i++) {
+			list[i] = new ArrayList<>();
+		}
 
 		for (int i = 0; i < m; i++) {
 			st = new StringTokenizer(br.readLine());
 			int a = Integer.parseInt(st.nextToken());
 			int b = Integer.parseInt(st.nextToken());
-			arr[a][b] = true;
+			list[b].add(a);
 		}
 
 		for (int i = 1; i < n + 1; i++) {
@@ -47,7 +49,7 @@ public class Main {
 				sb.append(i + " ");
 			}
 		}
-		
+
 		System.out.println(sb);
 	}
 
@@ -59,13 +61,14 @@ public class Main {
 
 		while (!que.isEmpty()) {
 			int pollNumber = que.poll();
-			for (int i = 1; i < n + 1; i++) {
-				if (node != i && !visited[i] && arr[i][pollNumber]) {
-					visited[i] = true;
-					que.offer(i);
-					
-					count[node]++;
+			
+			for(int availableList : list[pollNumber]) {
+				if(!visited[availableList]) {
+					visited[availableList] = true;
+					que.offer(availableList);
 				}
+
+				count[node]++;
 			}
 
 		}
