@@ -35,9 +35,6 @@ public class BOJ_1325 {
 
         for (int i = 1; i < N + 1; i++) {
             visit = new boolean[N + 1];
-            if (visit[i]) {
-                continue;
-            }
             bfs(i);
         }
 
