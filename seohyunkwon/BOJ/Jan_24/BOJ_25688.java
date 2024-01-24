@@ -1,4 +1,4 @@
-package com.example.alghorithm;
+package Jan_24;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -8,7 +8,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.StringTokenizer;
 
-public class BOJ25688 {
+public class BOJ_25688 {
     private static int[][] board;
     private static boolean[][] board_visited;
     private static boolean[] number_visited;
