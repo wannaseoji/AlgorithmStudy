@@ -138,7 +138,7 @@ public class Main {
         }
     }
 
-    //일렬로 나열
+    //일렬로 나열함
     public static void straightBowls() {
         int[][] copyBowls = new int[1][N];
         int idx = 0;
