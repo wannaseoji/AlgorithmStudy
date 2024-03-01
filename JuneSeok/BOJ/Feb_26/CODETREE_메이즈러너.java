@@ -177,10 +177,6 @@ class Maps {
         this.naegudo = naegudo;
     }
 
-    public void addParticipant(int number) {
-        q.add(number);
-    }
-
     public boolean isEmpty() {
         return q.isEmpty();
     }
