@@ -22,7 +22,6 @@ public class Main {
         double[][] dist = new double[n+2][n+2];
         Arrays.fill(time, Double.MAX_VALUE);
         
-        
         Cannons[n] = cur;
         Cannons[n + 1] = target;
         
@@ -44,6 +43,7 @@ public class Main {
         
         // 다익스트라 시작
         for(int i = 0; i < Cannons.length; i++) {
+        	
             double min_value = Double.MAX_VALUE; 
             int min_idx = -1;
             
@@ -57,7 +57,7 @@ public class Main {
             
 //            System.out.println("min_idx = "+min_idx);
             
-            if(min_idx == -1) break;
+            if(min_idx == -1 || min_idx == n+1) break;
             visit[min_idx] = true;
             
             // 최소 거리 설정
@@ -70,19 +70,18 @@ public class Main {
                 }
                 
                 // 대포 사용 시 ..
-                
                 // dist가 50보다 작거나 같으면 현재 시간에서 + 2초
-                if(dist[min_idx][j] <= 50 && time[j] > time[min_idx] + 2.0) {
-                	time[j] = time[min_idx] + 2.0;
-                }
+                if(min_idx >= n) continue;
+               
                 
                 // dist가 50보다 크면 현재 시간 + 2초 + 나머지 거리 / 속력
-                if(dist[min_idx][j] > 50 && time[j] > time[min_idx] + (dist[min_idx][j] - 50) / 5.0) {
-                    time[j] = time[min_idx] + (dist[min_idx][j] - 50) / 5.0 + 2.0;
-                }
+                if(dist[min_idx][j] > 50) {
+                    time[j] = Math.min(time[j],time[min_idx] + (dist[min_idx][j] - 50) / 5.0 + 2.0);
+                }else 
+                	time[j] = Math.min(time[j],time[min_idx] + (50 - dist[min_idx][j]) / 5.0 + 2.0);
             }
             
-            System.out.println(Arrays.toString(time));
+//            System.out.println(Arrays.toString(time));
         }
         
         System.out.println(time[n+1]);
