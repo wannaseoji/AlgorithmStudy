@@ -1,24 +1,21 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-public class 인간대포 {
-	static Point[] arr;
+
+public class Main {
 	static double startX, startY, endX, endY;
 	static double result;
 	static int n;
-	static double[] checked;
-	static PriorityQueue<Comb> queue = new PriorityQueue<>(new Comparator<Comb>() {
-		@Override
-		public int compare(Comb o1, Comb o2) {
-			return o1.dist < o2.dist ? -1 : 1;
-		}
-	});
 
 	public static void main(String[] args) throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -32,107 +29,98 @@ public class 인간대포 {
 		endY = Double.parseDouble(st.nextToken());
 
 		n = Integer.parseInt(br.readLine());
-		
-		Point startPoint = new Point(0, startX, startY);
-		Point endPoint = new Point(n + 1, endX, endY);
-		
-		arr = new Point[n + 2];
-		checked = new double[n + 2];
-		arr[0] = startPoint;
-		arr[n + 1] = endPoint;
+
+		ArrayList<Node>[] arr = new ArrayList[n + 2];
+		for (int i = 0; i < arr.length; i++) {
+			arr[i] = new ArrayList<>();
+		}
+
+		Node[] dae = new Node[n + 2];
+		dae[0] = new Node(0, startX, startY);
+		dae[n + 1] = new Node(n + 1, endX, endY);
+
 		for (int i = 1; i < n + 1; i++) {
 			st = new StringTokenizer(br.readLine());
-			arr[i] = new Point(i, Double.parseDouble(st.nextToken()), Double.parseDouble(st.nextToken()));
+			double x = Double.parseDouble(st.nextToken());
+			double y = Double.parseDouble(st.nextToken());
+
+			dae[i] = new Node(i, x, y);
 		}
 
-		// 두가지 선을 잇는 거리 저장하기
-		// 두가지 선 뽑기
-		// 거리 측정하기
-		for (int i = 0; i < arr.length - 1; i++) {
-			combination(i + 1, arr[i]);
-		}
-
-		goToEnd();
-
-	}
-
-	static void goToEnd() {
-		Comb comb = queue.poll();
-		// 출발지 가장 가까운곳으로 출발하기
-		double time = calcTime(comb);
-		checked[comb.b.index] += time;
-		// 나머지는 목적지 도달할 때 까지 수행하기
-		while (!queue.isEmpty()) {
-			Comb data = queue.poll();
-
-			time = calcTime(data);
-			if (checked[data.b.index] == 0) {
-				// 첫번째 걸리는게 시간 가장 적게 걸리는것
-				checked[data.b.index] += time;
-			} else {
-				if (checked[data.b.index] > checked[data.a.index] + time) {
-					checked[data.b.index] = checked[data.a.index] + time;
-				}
+		// 모든 경우의 수 넣기
+		for (int i = 0; i < n + 2; i++) {
+			for (int j = 0; j < n + 2; j++) {
+				if (i == j)
+					continue;
+				double time = calcTime(dae[i], dae[j]);
+				dae[j].sec = time;
+				arr[i].add(new Node(dae[j].index, dae[j].x, dae[j].y, dae[j].sec));
 			}
 		}
-		System.out.println(checked[n + 1]);
+		// 최단거리 배열 초기화
+		double[] sec = new double[n + 2];
+		Arrays.fill(sec, 50000);
+
+		boolean[] visited = new boolean[n + 2];
+
+		sec[0] = 0;
+		for (Node node : arr[0]) {
+			sec[node.index] = Math.min(sec[node.index], sec[0] + node.sec);
+		}
+
+		visited[0] = true;
+		for (int i = 0; i < sec.length - 1; i++) {
+			double min = 50000;
+			int index = 0;
+			// 값이 가장 작은 노드 구하기
+			for (int j = 0; j < visited.length; j++) {
+				if (!visited[j]) {
+					min = sec[j] < min ? sec[j] : min;
+					if (min == sec[j]) {
+						index = j;
+					}
+				}
+			}
+			// 방문체크
+			visited[index] = true;
+			ArrayList<Node> temp = arr[index];
+			for (Node node : temp) {
+				sec[node.index] = Math.min(sec[node.index], sec[index] + node.sec);
+			}
+		}
+		System.out.println(sec[n + 1]);
 	}
 
-	static double calcTime(Comb comb) {
+	static double calcTime(Node one, Node two) {
+		double distance = calcDistance(one, two);
 		double time = 0.0;
-		if (comb.a.index != 0 && comb.a.index != n + 1) {
+		if (one.index != 0) {
 			// 대포인경우 50m 발사 = 2초
-			time = 2;
-			comb.dist -= 50;
-			time += Math.abs(comb.dist) / 5.0;
+			time += Math.min(Math.abs(distance - 50) / 5.0 + 2, distance / 5.0);
 		} else {
-			time = comb.dist / 5.0;
+			time = distance / 5.0;
 		}
 		return time;
 	}
 
-	static void combination(int index, Point point) {
-		for (int i = index; i < arr.length; i++) {
-			double dist = Math
-					.sqrt(Math.pow(Math.abs(point.x - arr[i].x), 2) + Math.pow(Math.abs(point.y - arr[i].y), 2));
-			queue.add(new Comb(point, arr[i], dist));
-		}
+	static double calcDistance(Node one, Node two) {
+		return Math.sqrt(Math.pow(Math.abs(one.x - two.x), 2) + Math.pow(Math.abs(one.y - two.y), 2));
 	}
 
-	static class Point {
+	static class Node {
 		int index;
 		double x;
 		double y;
+		double sec;
 
-		public Point(int index, double x, double y) {
+		public Node(int index, double x, double y) {
+
+		public Node(int index, double x, double y, double sec) {
 			super();
 			this.index = index;
 			this.x = x;
 			this.y = y;
-		}
-
-		@Override
-		public String toString() {
-			return "Point [index=" + index + ", x=" + x + ", y=" + y + "]";
-		}
-
-	}
-
-	static class Comb {
-		Point a;
-		Point b;
-		double dist;
-
-		public Comb(Point a, Point b, double dist) {
-			super();
-			this.a = a;
-			this.b = b;
-			this.dist = dist;
-		}
-
-		@Override
-		public String toString() {
-			return "Comb [a=" + a + ", b=" + b + ", dist=" + dist + "]";
+			this.sec = sec;
 		}
 
 	}
