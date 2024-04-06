@@ -11,6 +11,7 @@ import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+
 public class Main {
 	static double startX, startY, endX, endY;
 	static double result;
@@ -113,11 +114,6 @@ public class Main {
 		double sec;
 
 		public Node(int index, double x, double y) {
-			super();
-			this.index = index;
-			this.x = x;
-			this.y = y;
-		}
 
 		public Node(int index, double x, double y, double sec) {
 			super();
@@ -128,5 +124,4 @@ public class Main {
 		}
 
 	}
-
 }
